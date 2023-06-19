@@ -1,5 +1,7 @@
 print("Hi Man")
 print("Hi Man")
 print("3nd commit")
+print("python")
+print("python")
 print("3nd commit")
 print("3nd commit")
