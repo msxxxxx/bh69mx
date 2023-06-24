@@ -41,3 +41,19 @@
 #
 # print(dad-2*son)
 
+x1 = int(input())
+y1 = int(input())
+x2 = int(input())
+y2 = int(input())
+
+z1 = x1 - y1
+z2 = x2 - y2
+
+l = (z1**2 + z2**2) ** 0.5
+print(l)
+
+
+
+
+
+
