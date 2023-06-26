@@ -1,6 +1,18 @@
 # # Пользователь вводит 3 числа, сказать сколько из них положительных
 # # и сколько отрицательных
 #
+a = int(input("Input num a: "))
+b = int(input("Input num b: "))
+c = int(input("Input num c: "))
+a1 = abs(a)
+b1 = abs(b)
+c1 = abs(c)
+x = str(a == a1)
+y = str(b == b1)
+z = str(c == c1)
+text = x + z + y
+print("Positive: ", text.count("True"))
+print("Negative: ", text.count("False"))
 # count = 0
 # neg = 0
 # a = int(input("Input 1st num: "))
@@ -20,15 +32,4 @@
 #     neg += 1
 # print("positive: ", count, "Negative: ", neg)
 #
-a = int(input("Input num a: "))
-b = int(input("Input num b: "))
-c = int(input("Input num c: "))
-a1 = abs(a)
-b1 = abs(b)
-c1 = abs(c)
-x = str(a == a1)
-y = str(b == b1)
-z = str(c == c1)
-text = x + z + y
-print("Positive: ", text.count("True"))
-print("Negative: ", text.count("False"))
+
