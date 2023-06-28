@@ -3,11 +3,11 @@
 # для этих ключей будут браться с клавиатуры
 
 users = {}
-n = int(input('n = '))
+n = int(input('n: '))
 for i in range(0, n):
-    name = input('name: ')
-    email = input('email: ')
-    users[n] = {
-        {name: email}
+    users[i] = {
+        input('name:'): input('email')
     }
-    print(users)
+print(users)
+
+
