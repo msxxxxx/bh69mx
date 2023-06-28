@@ -3,14 +3,15 @@
 # для этих ключей будут браться с клавиатуры
 
 # способ через цикл
-users = {}
-n = int(input('n: '))
-for i in range(0, n):
-    users[i] = {
-        input('name: '): input('email: ')
-    }
-print(users)
+# users = {}
+# n = int(input('n: '))
+# for i in range(0, n):
+#     users[i] = {
+#         input('name: '): input('email: ')
+#     }
+# print(users)
+
 # способ через dict comprehension
 n = int(input('n: '))
-d = {i: {input('name: '): input('email: ')} for i in range(n)}
+d = {i: {'name': input('name: '), 'email': input('email: ')} for i in range(n)}
 print(d)
