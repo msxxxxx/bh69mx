@@ -6,7 +6,7 @@ users = {}
 n = int(input('n: '))
 for i in range(0, n):
     users[i] = {
-        input('name:'): input('email')
+        input('name: '): input('email: ')
     }
 print(users)
 
