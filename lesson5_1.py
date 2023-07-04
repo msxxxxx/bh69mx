@@ -22,7 +22,7 @@ k = int(input('k = '))
 c = k
 lst = []
 
-while k >= k:
+while k >= 10:
     c += 1
     if c % m == 0:
         lst.append(c)
