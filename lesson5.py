@@ -42,21 +42,34 @@ data = [
     {'name': 'Name6', 'age': 34},
     {'name': 'Name7', 'age': 37}
 ]
+lst = []
+# for i in data:
+#     lst = ''.join(str(i['age']))
+#     print(lst)
 
-# d = {1: "a", 2: "b"}
-# list(d.values())
-for i in data:
-    d = list(i.values())
-    print(d)
-    for n in d:
-        print(n)
+for n in data:
+    j = int(n['age'])
+#    print(j)
+    lst.append(j)
+print(lst)
 
-# if __name__ == '__main__':
-#     data = [2, 3, 6, 12, 31, 34, 75]
-#     number_to_find = 13
-#     iterative_number_index = iterative_binary_search(0, len(numbers) - 1, numbers, number_to_find)
-#
-#     if iterative_number_index != -1:
-#         print(f"Iterative Binary Search: Number {number_to_find} found in the list at index {iterative_number_index}")
-#     else:
-#         print(f"Iterative Binary Search: Number {number_to_find} not found in the list")
+
+
+
+
+
+
+elem = 37
+
+low = 0
+high = len(lst) - 1
+
+while low <= high:
+    middle = (low + high) // 2
+    if lst[middle] == elem:
+        print(middle)
+        break
+    elif lst[middle] > elem:
+        high = middle - 1
+    else:
+        low = middle + 1
