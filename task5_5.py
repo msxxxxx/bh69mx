@@ -15,5 +15,10 @@ lst = [
 
 for i in lst[0:]:
     if i['category_id'] == 1:
-        del lst[]
+        del i
+    elif i['category_id'] == 2:
+        i['price'] = i['price'] * 0.95
+        print(i)
+    else:
+        print(i)
 
