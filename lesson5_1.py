@@ -19,15 +19,12 @@
 n = int(input('n = '))
 m = int(input('m = '))
 k = int(input('k = '))
-c = k
 lst = []
 
-while k >= k:
-    c += 1
-    if c % m == 0:
-        lst.append(c)
-        if len(lst) == n:
-            break
+while len(lst) < n:
+    k += 1
+    if k % m == 0:
+        lst.append(k)
 print(lst)
 
 
