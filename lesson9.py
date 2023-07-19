@@ -23,9 +23,13 @@ class ConfigParser:
                 data[current_section][key] = value
         return data
 
+#  1. объявить метод has_section принимающий название секции и возвращающий
+#  True - если такая секция есть, в противном случае False
     def has_section(self, section: str) -> bool:
         return section in self.data
 
+#  2. объявить метод has_param принимающий название секции и название параметра
+#  True - если есть указанный параметр в указанной секции иначе False
     def has_param(self, section: str, param: str) -> bool:
         try:
             return param in self.data[section]
