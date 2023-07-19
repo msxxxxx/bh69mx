@@ -38,11 +38,6 @@ class ConfigParser:
     def add_section(self, section: str):
         try:
             if section not in self.data:
-            #     return True
-            # else:
-            #     return param in self.data[section] = section
-            #     return data
-            #     print(self.data[section])
                 self.data[section] = {'key5': 'value5', 'key6': 'value6'}
                 return self.data
             else:
@@ -56,11 +51,6 @@ class ConfigParser:
     def del_section(self, section: str):
         try:
             if section in self.data:
-            #     return True
-            # else:
-            #     return param in self.data[section] = section
-            #     return data
-            #     print(self.data[section])
                 del self.data[section]
                 return self.data
             else:
@@ -83,17 +73,40 @@ class ConfigParser:
         except KeyError:
             raise ValueError
 
-# print(ConfigParser.loads(text))
-# print(ConfigParser(text=text).has_section(section='Section1'))
-# print(ConfigParser(text=text).has_param(section='Section1', param='key1'))
-#print(ConfigParser(text=text).add_section(section='Section4'))
-#print(ConfigParser(text=text).del_section(section='Section1'))
-print(ConfigParser(text=text).del_param(section='Section1', param='key1'))
+#  4. объявить метод add_param принимающий название секции, название параметра и значение
+#  если нет указанной секции - ValueError
+#  если в секции нет указанного параметра - объявить параметр с указанным значением
+#  если в секции есть указанный параметр - заменить его значение на новое
+    def add_param(self, section: str, param: str, value: str):
+        try:
+            if section not in self.data:
+                return ValueError
+            elif param not in self.data[section]:
+                self.data[section][param] = value
+            if param in self.data[section]:
+                self.data[section][param] = value
+                return self.data
+            else:
+                return self.data
+        except KeyError:
+            raise ValueError
+
+#  7. объявить метод dumps превращающий словарь в строку согласно формату
+#  и возвращающий данную строку
+
+    def dump(self, text_dict):
+        result = ""
+        for key, value in text_dict.items():
+            for i, j in value.items():
+                result += f"[{key}]\n{i}={j}\n"
+        return result
 
 
-
-
-
-
-
-
+print(ConfigParser(text=text).has_section(section='Section1'))
+print(ConfigParser(text=text).has_param(section='Section1', param='key1'))
+print(ConfigParser(text=text).add_section(section='Section3'))
+print(ConfigParser(text=text).del_section(section='Section1'))
+print(ConfigParser(text=text).del_param(section='Section1', param='key2'))
+print(ConfigParser(text=text).add_param(section='Section1', param='key2', value='value999'))
+y = ConfigParser.loads(text=text)
+print(ConfigParser(text=text).dump(text_dict=y))
