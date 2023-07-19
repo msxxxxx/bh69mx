@@ -95,10 +95,13 @@ class ConfigParser:
 #  и возвращающий данную строку
 
     def dump(self, text_dict):
-        result = ""
+        result = ''
         for key, value in text_dict.items():
+            t_key = str(key)
+            pr_result = ''
             for i, j in value.items():
-                result += f"[{key}]\n{i}={j}\n"
+                pr_result += f"\n{i}={j}"
+            result += str(f'[{t_key}]{pr_result}\n')
         return result
 
 
