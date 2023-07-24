@@ -12,36 +12,38 @@ from typing import List
 # c.	price - Decimal 8/2
 # d.	count - целое положительное число
 
-class SchemaValid(BaseModel):
-    title: str
-    descr: str
+class Schema(BaseModel):
+    title: str = Field(max_length=128)
+    descr: str = Field(max_length=4096)
     price: Decimal = Field(max_digits=8, decimal_places=2)
     count: PositiveInt
+    #
+    # @field_validator("title")
+    # @classmethod
+    # def validate_title(cls, value):
+    #     if len(value) > 128:
+    #         raise ValueError("Not much 128 symbols")
+    #     return value
+    #
+    # @field_validator("descr")
+    # @classmethod
+    # def validate_descr(cls, value):
+    #     if len(value) > 4096:
+    #         raise ValueError("Not much 4096 symbols")
+    #     return value
+    #
+    # @field_validator("price")
+    # @classmethod
+    # def validate_price(cls, value: Decimal = Field(max_digits=8, decimal_places=2)):
+    #     return value
+    #
+    # @field_validator("count")
+    # @classmethod
+    # def validate_count(cls, value: PositiveInt):
+    #     return value
 
-# city = SchemaValid.model_validate(file)
-    @field_validator("title")
-    @classmethod
-    def validate_title(cls, value):
-        if len(value) > 128:
-            raise ValueError("Not much 128 symbols")
-        return value
-
-    @field_validator("descr")
-    @classmethod
-    def validate_descr(cls, value):
-        if len(value) > 4096:
-            raise ValueError("Not much 4096 symbols")
-        return value
-
-    @field_validator("price")
-    @classmethod
-    def validate_price(cls, value: Decimal = Field(max_digits=8, decimal_places=2)):
-        return value
-
-    @field_validator("count")
-    @classmethod
-    def validate_count(cls, value: PositiveInt):
-        return value
+class Schemas(BaseModel):
+    schemas: List[Schema]
 
 # 2.	Написать абстрактный класс:
 # a.	schema - атрибут класса (объявляется с аннотацией типа без присваивания значения)
@@ -49,17 +51,16 @@ class SchemaValid(BaseModel):
 # c.	dump - метод класса, принимающий список, объект файла и разделитель
 from abc import ABC, abstractmethod
 class AbstractProducts(ABC):
-    schema: List[SchemaValid]
+    schemas = Schema
+
     def __init__(self, file, delimiter):
         self.file = file
         self.delimiter = delimiter
-    @abstractmethod
-    @classmethod
+
     def parse(self):
         pass
 
-    @abstractmethod
-    @classmethod
+    # @abstractmethod
     def dump(self):
         pass
 
@@ -74,7 +75,6 @@ class AbstractProducts(ABC):
 # схемы указанной в атрибуте класса schema, если одна из схем не является, вызывать исключение TypeError)
 list_of_dictionaries = []
 class Products(AbstractProducts):
-    schema: SchemaValid
 
     def parse(self):
 
@@ -92,11 +92,6 @@ class Products(AbstractProducts):
                 for i in range(number_of_columns):
                     row_as_a_dictionary[keys[i]] = item[i]
                 list_of_dictionaries.append(row_as_a_dictionary)
-        for items in list_of_dictionaries:
-            try:
-                s = SchemaValid(**items)
-            except:
-                pass
 
     def dumps(self, list_of_dictionaries):
         with open(self.file, 'w') as f:
@@ -108,4 +103,9 @@ class Products(AbstractProducts):
         return True
 
 b = Products(file="products.csv", delimiter=',').parse()
-lol = Products(file="pr_output.csv", delimiter=',').dumps(list_of_dictionaries=list_of_dictionaries)
+try:
+    m = Schemas(schemas=list_of_dictionaries)
+    Products(file="pr_output.csv", delimiter=',').dumps(list_of_dictionaries=list_of_dictionaries)
+except:
+    Products(file="pr_output.csv", delimiter=',').dumps(list_of_dictionaries=list_of_dictionaries)
+

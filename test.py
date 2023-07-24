@@ -34,10 +34,3 @@ def dumps(fileName, delimiter, lst_of_dictionaries):
 
 b = dumps(fileName="pr_output.csv", delimiter=',', lst_of_dictionaries=lst)
 print(b)
-
-# with open('products.csv', 'r', encoding='utf-8') as file:
-#     r = DictReader(file, delimiter=',')
-#     for line in r:
-#         line = dict(line)
-#         a = Schema(**line)
-#         print(a)
