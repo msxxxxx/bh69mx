@@ -1,7 +1,6 @@
 from psycopg2 import connect
-from psycopg2.extras import NamedTupleCursor
 
-with connect('postgresql://myuser:postgres@127.0.0.1:5432/postgres') as conn:
+with connect('postgresql://myuser:postgres@127.0.0.1:5432/projectdb') as conn:
     with conn.cursor() as cur:
         commands = (
             '''
@@ -53,9 +52,7 @@ conn.commit()
 #         cur.execute('''select * from categories;''', )
 #         print(cur.fetchall())
 
-# with connect('postgresql://postgres:postgres@127.0.0.1:5432/postgres') as conn:
-#     with conn.cursor() as cur:
-#         cur.execute('''create table categories(
-#                 id serial primary key,
-#                 name varchar(24) unique)''',)
-#         conn.commit()
+with connect('postgresql://myuser:postgres@127.0.0.1:5432/projectdb') as conn:
+    with conn.cursor() as cur:
+        cur.execute('''insert into categories(name) values(%s)''', ('limonad', ))
+        conn.commit()
