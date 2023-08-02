@@ -78,6 +78,7 @@ with Products.session() as session:
     # FETCH ALL THE RECORDS IN THE RESPONSE
     result = session.execute(query).fetchall()
     print(result)
+    #
     # with open('product_dump.csv', 'w', encoding='utf-8') as file:  # type: TextIOWrapper
     #     ProductParser.dump(objs=result, file=file, delimiter=',')
             # pr1 = Products(**i.model_dump(), category_id=1)
