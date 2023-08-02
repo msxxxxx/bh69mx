@@ -1,8 +1,9 @@
 from datetime import datetime
-from sqlalchemy import Column, INT, VARCHAR, ForeignKey, TIMESTAMP, TEXT, create_engine, CheckConstraint, FLOAT
-from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker, declared_attr
-from lesson11_pydanticschema import ProductParser, ProductDetail, Parser
+from sqlalchemy import Column, INT, VARCHAR, ForeignKey, TIMESTAMP, TEXT, create_engine, CheckConstraint, FLOAT, select
+from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker, declared_attr, Any
+from lesson11_pydanticschema import ProductParser, ProductModel, Parser
 from io import TextIOWrapper
+from collections import namedtuple
 
 class Base(DeclarativeBase):
     id = Column(INT, primary_key=True)
@@ -12,6 +13,11 @@ class Base(DeclarativeBase):
     @declared_attr
     def __tablename__(cls):
         return ''.join(f'_{i.lower()}' if i.isupper() else i for i in cls.__name__).strip('_')
+
+    # def from_attributes(self, obj: Any):
+    #     for k, v in obj.__dict__:
+    #         if hasattr(self, k):
+    #             setattr(self, k, v)
 
 # class Statuses(Base):
 #     name = Column(VARCHAR(10), nullable=False, unique=True)
@@ -39,19 +45,45 @@ class Products(Base):
     category_id = Column(INT, ForeignKey(column='category.id', ondelete='RESTRICT'), nullable=False)
     category = relationship(argument='Category', back_populates='products')
 
-with Category.session() as session:
-    # создаем объект Person для добавления в бд
-    s1 = Category(name='fruit')
-    session.add(s1)     # добавляем в бд
-    session.commit()     # сохраняем изменения
-    print(s1.id)   # можно получить установленный id
+# with Category.session() as session:
+#     s1 = Category(name='fruit')
+#     session.add(s1)
+#     session.commit()
+#     print(s1.id)
+#
+# with Products.session() as session:
+#     pr1 = Products(title='banan', description='fruit', price=3.34, count=10, category_id=1)
+#     session.add(pr1)
+#     session.commit()
+#     print(pr1.id)
 
+#WORK!!! send to db
+# with open('product.csv', 'r', encoding='utf-8') as file:  # type: TextIOWrapper
+#     schema = ProductParser.parse(file=file, delimiter=',')
+#     for i in schema:
+#         print(i)
+#         with Products.session() as session:
+#             pr1 = Products(**i.model_dump(), category_id=1)
+#             session.add(pr1)
+#             session.commit()
+#             print(pr1.id)
+
+# with open('product.csv', 'r', encoding='utf-8') as file:  # type: TextIOWrapper
+#     schema = ProductParser.parse(file=file, delimiter=',')
+#     for i in schema:
+#         print(i)
 with Products.session() as session:
-    # создаем объект Person для добавления в бд
-    pr1 = Products(title='banan', description='fruit', price=3.34, count=10, category_id=1)
-    session.add(pr1)     # добавляем в бд
-    session.commit()     # сохраняем изменения
-    print(pr1.id)   # можно получить установленный id
+    # SQLAlCHEMY CORE QUERY TO FETCH SPECIFIC COLUMNS
+    query = select(Products.title, Products.description, Products.price, Products.count)
+    # FETCH ALL THE RECORDS IN THE RESPONSE
+    result = session.execute(query).fetchall()
+    print(result)
+    # with open('product_dump.csv', 'w', encoding='utf-8') as file:  # type: TextIOWrapper
+    #     ProductParser.dump(objs=result, file=file, delimiter=',')
+            # pr1 = Products(**i.model_dump(), category_id=1)
+            # session.add(pr1)
+            # session.commit()
+            # print(pr1.id)
 
 # class OrderItems(Base):
 #     order_id = Column(INT, ForeignKey(column='orders.id', ondelete='RESTRICT'), nullable=False)
