@@ -23,7 +23,7 @@ class Base(DeclarativeBase):
     def __tablename__(cls):
         return ''.join(f'_{i.lower()}' if i.isupper() else i for i in cls.__name__).strip('_')
 
-
+# create tables
 # class Statuses(Base):
 #     name = Column(VARCHAR(10), nullable=False, unique=True)
 #
