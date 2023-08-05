@@ -1,9 +1,18 @@
-from datetime import datetime
-from sqlalchemy import Column, INT, VARCHAR, ForeignKey, TIMESTAMP, TEXT, create_engine, CheckConstraint, FLOAT, select
+from sqlalchemy import (
+    Column,
+    INT,
+    VARCHAR,
+    ForeignKey,
+    create_engine,
+    FLOAT,
+    select,
+    update,
+    delete
+)
 from sqlalchemy.orm import DeclarativeBase, relationship, sessionmaker, declared_attr, Any
-from lesson11_pydanticschema import ProductParser, ProductModel, Parser
+from lesson11_pydanticschema import ProductParser, ProductModel
 from io import TextIOWrapper
-from collections import namedtuple
+
 
 class Base(DeclarativeBase):
     id = Column(INT, primary_key=True)
@@ -14,10 +23,6 @@ class Base(DeclarativeBase):
     def __tablename__(cls):
         return ''.join(f'_{i.lower()}' if i.isupper() else i for i in cls.__name__).strip('_')
 
-    # def from_attributes(self, obj: Any):
-    #     for k, v in obj.__dict__:
-    #         if hasattr(self, k):
-    #             setattr(self, k, v)
 
 # class Statuses(Base):
 #     name = Column(VARCHAR(10), nullable=False, unique=True)
@@ -31,11 +36,9 @@ class Base(DeclarativeBase):
 #     status_id = Column(INT, ForeignKey(column='statuses.id', ondelete='RESTRICT'), nullable=False)
 
 class Category(Base):
-    # __table_args__ = (
-    #     CheckConstraint('char_length(name) >= 4'),
-    # )
     name = Column(VARCHAR(24), nullable=False, unique=True)
     products = relationship(argument='Products', back_populates='category')
+
 
 class Products(Base):
     title = Column(VARCHAR(36), nullable=False)
@@ -45,66 +48,42 @@ class Products(Base):
     category_id = Column(INT, ForeignKey(column='category.id', ondelete='RESTRICT'), nullable=False)
     category = relationship(argument='Category', back_populates='products')
 
-# with Category.session() as session:
-#     s1 = Category(name='fruit')
-#     session.add(s1)
-#     session.commit()
-#     print(s1.id)
-#
-# with Products.session() as session:
-#     pr1 = Products(title='banan', description='fruit', price=3.34, count=10, category_id=1)
-#     session.add(pr1)
-#     session.commit()
-#     print(pr1.id)
 
-#WORK!!! send to db
-# with open('product.csv', 'r', encoding='utf-8') as file:  # type: TextIOWrapper
-#     schema = ProductParser.parse(file=file, delimiter=',')
-#     for i in schema:
-#         print(i)
-#         with Products.session() as session:
-#             pr1 = Products(**i.model_dump(), category_id=1)
-#             session.add(pr1)
-#             session.commit()
-#             print(pr1.id)
+# insert category items to db
+with Base.session() as session:
+    category1 = Category(name='Fruit')
+    category2 = Category(name='Vegetables')
+    session.add_all((category1, category2))
+    session.commit()
+    session.refresh(category1)
+    session.refresh(category2)
 
-# with open('product.csv', 'r', encoding='utf-8') as file:  # type: TextIOWrapper
-#     schema = ProductParser.parse(file=file, delimiter=',')
-#     for i in schema:
-#         print(i)
+
+#send to db
+with open('product.csv', 'r', encoding='utf-8') as file:  # type: TextIOWrapper
+    schema = ProductParser.parse(file=file, delimiter=',')
+    print(schema)
+    for obj in schema:
+        with Products.session() as session:
+            pr1 = Products(**obj.model_dump(), category_id=1)
+            session.add(pr1)
+            session.commit()
+
+
+# get from db
 with Products.session() as session:
-    # SQLAlCHEMY CORE QUERY TO FETCH SPECIFIC COLUMNS
-    query = select(Products.title, Products.description, Products.price, Products.count)
-    # FETCH ALL THE RECORDS IN THE RESPONSE
-    result = session.execute(query).fetchall()
-    print(result)
-    #
-    # with open('product_dump.csv', 'w', encoding='utf-8') as file:  # type: TextIOWrapper
-    #     ProductParser.dump(objs=result, file=file, delimiter=',')
-            # pr1 = Products(**i.model_dump(), category_id=1)
-            # session.add(pr1)
-            # session.commit()
-            # print(pr1.id)
+    products = session.scalars(select(Products)).fetchall()
+    data = []
+    for product in products:
+        y = ProductModel.model_validate(product.__dict__)
+        data.append(y)
+    with open('product_dump.csv', 'w', encoding='utf-8') as file2:  # type: TextIOWrapper
+        ProductParser.dump(objs=data, file=file2, delimiter=',')
+
 
 # class OrderItems(Base):
 #     order_id = Column(INT, ForeignKey(column='orders.id', ondelete='RESTRICT'), nullable=False)
 #     product_id = Column(INT, ForeignKey(column='products.id', ondelete='RESTRICT'), nullable=False)
-
-# class Post(Base):
-#     title = Column(VARCHAR(128), nullable=False)
-#     descr = Column(TEXT, nullable=False)
-#     date_created = Column(TIMESTAMP, default=datetime.utcnow())
-#     date_updated = Column(TIMESTAMP, onupdate=datetime.utcnow())
-#     category_id = Column(INT, ForeignKey(column='category.id', ondelete='RESTRICT'), nullable=False)
-#     category = relationship(argument='Category', back_populates='posts')
-
-    # @property
-    # def date(self):
-    #     return self.date_created.isoformat()
-
-
-# print(Base.metadata.create_all(bind=Base.engine))
-# print(Base.metadata.drop_all(bind=Base.engine))
 
 
 
