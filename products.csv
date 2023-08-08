@@ -1,4 +1,6 @@
-title,descr,price,count
+title,description,price,count
 banan,fruit,3.34,10
-orange,fruit,4.33,4
-orange,fruit,4.33,ttt
+limon,fruit,4.33,4
+limon,fruit,4.33,99
+orange,fruit,5.33,ttttt
+orange,fruit,5.33,tttte

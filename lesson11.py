@@ -1,10 +1,12 @@
-from pydantic import (
-    BaseModel,
-    Field,
-    field_validator
-)
-from pydantic.types import Decimal, PositiveInt
-from typing import List
+from abc import ABC, abstractmethod
+from io import TextIOWrapper
+from typing import Type, List, TypeVar
+
+from pydantic import BaseModel, Field, PositiveInt
+from pydantic.types import Decimal, PositiveFloat
+from pydantic_core import ValidationError
+
+Schema = TypeVar('Schema', bound=BaseModel)
 
 # 1.	Написать Pydantic схему для валидации данных:
 # a.	title - строка с длиной не более 128
@@ -12,55 +14,32 @@ from typing import List
 # c.	price - Decimal 8/2
 # d.	count - целое положительное число
 
+
 class SchemaValid(BaseModel):
-    title: str
-    descr: str
-    price: Decimal = Field(max_digits=8, decimal_places=2)
+    title: str = Field(..., max_length=128)
+    description: str = Field(..., max_length=4096)
+    price: Decimal = Field(..., max_digits=8, decimal_places=2)
     count: PositiveInt
 
-# city = SchemaValid.model_validate(file)
-    @field_validator("title")
-    @classmethod
-    def validate_title(cls, value):
-        if len(value) > 128:
-            raise ValueError("Not much 128 symbols")
-        return value
 
-    @field_validator("descr")
-    @classmethod
-    def validate_descr(cls, value):
-        if len(value) > 4096:
-            raise ValueError("Not much 4096 symbols")
-        return value
-
-    @field_validator("price")
-    @classmethod
-    def validate_price(cls, value: Decimal = Field(max_digits=8, decimal_places=2)):
-        return value
-
-    @field_validator("count")
-    @classmethod
-    def validate_count(cls, value: PositiveInt):
-        return value
 
 # 2.	Написать абстрактный класс:
 # a.	schema - атрибут класса (объявляется с аннотацией типа без присваивания значения)
 # b.	parse - метод класса принимающий объект файла, разделитель и список
 # c.	dump - метод класса, принимающий список, объект файла и разделитель
-from abc import ABC, abstractmethod
+
+
 class AbstractProducts(ABC):
-    schema: List[SchemaValid]
-    def __init__(self, file, delimiter):
-        self.file = file
-        self.delimiter = delimiter
-    @abstractmethod
+    schema: Type[BaseModel]
+
     @classmethod
-    def parse(self):
+    @abstractmethod
+    def parse(cls, file: TextIOWrapper, delimiter: str) -> List[Schema]:
         pass
 
-    @abstractmethod
     @classmethod
-    def dump(self):
+    @abstractmethod
+    def dump(cls, objs: List[Schema], file: TextIOWrapper, delimiter: str) -> None:
         pass
 
 # 3.	На основании абстрактного класса из пункта 2, создать дочерний класс:
@@ -72,40 +51,30 @@ class AbstractProducts(ABC):
 # Pydantiс схемы, объект файла и разделитель и записывающий
 # данные из схем в csv файл (все схемы в списке должны быть экземплярами
 # схемы указанной в атрибуте класса schema, если одна из схем не является, вызывать исключение TypeError)
-list_of_dictionaries = []
 class Products(AbstractProducts):
-    schema: SchemaValid
+    schema = SchemaValid
 
-    def parse(self):
-
-        with open(self.file) as infile:
-            column_names = infile.readline()
-            keys = column_names.strip().split(self.delimiter)
-            number_of_columns = len(keys)
-            data = infile.readlines()
-            list_of_rows = []
-            for row in data:
-                list_of_rows.append(row.strip().split(self.delimiter))
-            infile.close()
-            for item in list_of_rows:
-                row_as_a_dictionary = {}
-                for i in range(number_of_columns):
-                    row_as_a_dictionary[keys[i]] = item[i]
-                list_of_dictionaries.append(row_as_a_dictionary)
-        for items in list_of_dictionaries:
+    @classmethod
+    def parse(cls, file: TextIOWrapper, delimiter: str) -> List[Schema]:
+        fieldnames = file.readline().strip().split(delimiter)
+        values = [line.strip().split(delimiter) for line in file]
+        values = [dict(zip(fieldnames, value)) for value in values]
+        data = []
+        for value in values:
             try:
-                s = SchemaValid(**items)
-            except:
+                data.append(cls.schema(**value))
+            except ValidationError:
                 pass
+        return data
 
-    def dumps(self, list_of_dictionaries):
-        with open(self.file, 'w') as f:
-            f.write(self.delimiter.join(list_of_dictionaries[0].keys()))
-            f.write('\n')
-            for row in list_of_dictionaries:
-                f.write(self.delimiter.join(str(x) for x in row.values()))
-                f.write('\n')
-        return True
+    @classmethod
+    def dump(cls, objs: List[Schema], file: TextIOWrapper, delimiter: str) -> None:
+        objs = [obj.model_dump() for obj in objs]
+        fieldnames = delimiter.join(objs[0].keys())
+        objs = [delimiter.join(f'{value}' for value in obj.values()) for obj in objs]
+        objs.insert(0, fieldnames)
+        file.write('\n'.join(objs))
 
-b = Products(file="products.csv", delimiter=',').parse()
-lol = Products(file="pr_output.csv", delimiter=',').dumps(list_of_dictionaries=list_of_dictionaries)
+
+with open('products.csv', 'r', encoding='utf-8') as file, open('pr_output.csv', 'w', encoding='utf-8') as file2:  # type: TextIOWrapper
+    Products.dump(Products.parse(file=file, delimiter=','), file=file2, delimiter=',')

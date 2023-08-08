@@ -42,7 +42,7 @@ class ConfigParser:
     def add_section(self, section: str):
         try:
             if section not in self.data:
-                self.data[section] = {'key5': 'value5', 'key6': 'value6'}
+                self.data[section] = {}
                 return self.data
             else:
                 raise ValueError
@@ -53,14 +53,11 @@ class ConfigParser:
 #  нет, ничего происходить не должно
 
     def del_section(self, section: str):
-        try:
-            if section in self.data:
-                del self.data[section]
-                return self.data
-            else:
-                return self.data
-        except KeyError:
-            raise ValueError
+        if section in self.data:
+            del self.data[section]
+            return self.data
+        else:
+            return self.data
 
 #  6. объявить метод del_param - принимающий название секции и название параметра
 #  если данной секции нет - ValueError
