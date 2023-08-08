@@ -43,11 +43,12 @@ morse_alpha = {
 
 def to_morse_code(plain_text):
     morse_code = ''
+    plain_text = [*plain_text]
+    for i in range(len(plain_text)-1, -1,-1):
+        if str(plain_text[i]).upper() not in morse_alpha.keys():
+            del plain_text[i]
     for char in plain_text:
-        if char == ' ':
-            morse_code += '  '
-        else:
-            morse_code += morse_alpha[char.upper()] + ' '
-    print(morse_code)
+        morse_code += morse_alpha[char.upper()] + ' '
+    return morse_code
 
-to_morse_code('hello world')
+print(to_morse_code('hello world.*%%%@@###**>>>'))
