@@ -3,5 +3,8 @@
 # незаконно
 
 lst = [1, 2, 3, 'sd', 4, 'asas', 'ererer', (1, 2, 3)]
-lst = list(filter(lambda i: isinstance(i, str), lst))
+for i in range(len(lst) - 1, -1, -1):
+    if not isinstance(lst[i], str):
+        del lst[i]
+
 print(lst)
